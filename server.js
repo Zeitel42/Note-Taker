@@ -5,7 +5,7 @@ const notes = require("./db/db.json");
 const uuid = require("./helpers/uuid.js");
 // const deleteNote = require("./delete/delete.js");
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const app = express();
 
