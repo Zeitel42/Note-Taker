@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const notes = require("./db/db.json");
 const uuid = require("./helpers/uuid.js");
+// const deleteNote = require("./delete/delete.js");
 
 const PORT = 3001;
 
@@ -68,15 +69,49 @@ app.post("/api/notes", (req, res) => {
 });
 
 // get for delete
-app.get("/api/notes/:id", (req, res) => {
-  const result = findById(req.params.id, notes);
-  res.json(result);
-});
+app.delete("/api/notes/:id", (req, res) => {
+  console.info(`${req.method} request received to delete a note`);
 
+  // Obtain existing notes
+  fs.readFile("./db/db.json", "utf8", (err, data) => {
+    if (err) {
+      console.error(err);
+    } else {
+      // Convert string into JSON object
+
+      parsedNotes = JSON.parse(data);
+
+      // find note by id
+
+      const result = req.params.id;
+      console.log(result);
+      parsedNotes.notes.forEach((element) => {
+        if (result === element.id) {
+          var index = parsedNotes.notes.findIndex(function (o) {
+            return o.id === element.id;
+          });
+          if (index !== -1) parsedNotes.notes.splice(index, 1);
+        }
+      });
+
+      console.log(parsedNotes);
+      // Write updated notes back to the file
+      fs.writeFile(
+        "./db/db.json",
+        JSON.stringify(parsedNotes, null, 2),
+        (writeErr) =>
+          writeErr
+            ? console.error(writeErr)
+            : console.info("Successfully updated!")
+      );
+    }
+    res.send("deleted note");
+  });
+});
 //route to db.json notes
 app.get("/api/notes", (req, res) => {
-  res.sendFile(path.join(__dirname, "./db/db.json"));
-  res.json(notes);
+  // res.sendFile(path.join(__dirname, "./db/db.json"));
+  res.json(notes.notes);
 });
 
 //route to notes.html
