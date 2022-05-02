@@ -46,23 +46,23 @@ app.post("/api/notes", (req, res) => {
 
         // Add a new note
         parsedNotes.notes.push(newNote);
-
+        notes;
         // Write updated notes back to the file
         fs.writeFile(
           "./db/db.json",
           JSON.stringify(parsedNotes, null, 2),
-          (writeErr) =>
-            writeErr
-              ? console.error(writeErr)
-              : console.info("Successfully updated!")
+          (writeErr) => {
+            if (writeErr) {
+              console.error(writeErr);
+            } else {
+              console.info("Successfully updated!");
+
+              res.send("added note");
+            }
+          }
         );
       }
     });
-
-    const response = newNote;
-
-    // console.log(response, "line 63");
-    res.json(response);
   } else {
     res.json("Error in posting note");
   }
@@ -99,19 +99,32 @@ app.delete("/api/notes/:id", (req, res) => {
       fs.writeFile(
         "./db/db.json",
         JSON.stringify(parsedNotes, null, 2),
-        (writeErr) =>
-          writeErr
-            ? console.error(writeErr)
-            : console.info("Successfully updated!")
+        (writeErr) => {
+          if (writeErr) {
+            console.error(writeErr);
+          } else {
+            console.info("Successfully updated!");
+            res.send("deleted note");
+          }
+        }
       );
     }
-    res.send("deleted note");
   });
 });
+
 //route to db.json notes
 app.get("/api/notes", (req, res) => {
   // res.sendFile(path.join(__dirname, "./db/db.json"));
-  res.json(notes.notes);
+  fs.readFile("./db/db.json", "utf8", (err, data) => {
+    if (err) {
+      console.error(err);
+    } else {
+      // Convert string into JSON object
+
+      const parsedNotes = JSON.parse(data);
+      res.json(parsedNotes.notes);
+    }
+  });
 });
 
 //route to notes.html
